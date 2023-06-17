@@ -40,7 +40,7 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name == "CastError") {
-        return res.status(500).send({ message: "id карточки не корректен" });
+        return res.status(400).send({ message: "id карточки не корректен" });
       }
       return res.status(500).send({ message: "Произошла ошибка" });
     });
@@ -60,7 +60,7 @@ const likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name == "CastError") {
-        return res.status(500).send({ message: "id карточки не корректен" });
+        return res.status(400).send({ message: "id карточки не корректен" });
       }
       return res.status(500).send({ message: "Произошла ошибка" });
     });
@@ -80,7 +80,7 @@ const dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name == "CastError") {
-        return res.status(500).send({ message: "id карточки не корректен" });
+        return res.status(400).send({ message: "id карточки не корректен" });
       }
       return res.status(500).send({ message: "Произошла ошибка" });
     });
