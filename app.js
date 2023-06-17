@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
+app.use(express.static("build"));
 // parse application/json
 app.use(bodyParser.json());
 
@@ -31,5 +32,5 @@ mongoose
 app.use(routes);
 
 app.listen(PORT, () => {
-  console.log("server is running");
+  console.log(`server is running on port ${PORT}`);
 });
