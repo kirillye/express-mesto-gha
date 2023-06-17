@@ -31,6 +31,12 @@ mongoose
 
 app.use(routes);
 
+app.use((req, res, next) => {
+  res.status(404).json({
+    message: "К сожалению страница не найдена =(",
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
 });
