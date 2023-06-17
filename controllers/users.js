@@ -20,6 +20,13 @@ const getUsersById = (req, res) => {
       return res.status(200).send(user);
     })
     .catch((err) => {
+      if (err.name == "CastError") {
+        return res
+          .status(400)
+          .send({ message: "Id пользователя не корректен" });
+      }
+      console.log(err.name);
+      return res.send(err.name);
       return res.status(500).send({ message: "server error" });
     });
 };
@@ -54,7 +61,7 @@ const updateUserById = (req, res) => {
       if (!user) {
         return res.status(404).send({ message: "user not found" });
       }
-      return res.status(201).send({ data: user });
+      return res.status(200).send({ data: user });
     })
     .catch((err) => {
       console.log(err);
@@ -84,7 +91,7 @@ const updateUserAvatarById = (req, res) => {
       if (!user) {
         return res.status(404).send({ message: "user not found" });
       }
-      return res.status(201).send({ data: user });
+      return res.status(200).send({ data: user });
     })
     .catch((err) => {
       console.log(err);
