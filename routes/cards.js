@@ -32,7 +32,7 @@ router.post(
 // удаляет карточку по идентификатору
 router.delete("/:cardId", auth, celebrate({
   params: Joi.object().keys({
-    cardId: Joi.number().min(10)
+    cardId: Joi.string().min(10)
   }),
 }), deleteCard);
 

@@ -44,7 +44,7 @@ const deleteCard = (req, res) => {
         .then((card) => {
           console.log(card.owner);
           if (!card) {
-            throw new NotFoundError("Карточка не найдена");
+            return res.status(404).send({ message: "Произошла ошибка" });
           }
           return res.status(200).send({ data: card });
         })
