@@ -21,7 +21,7 @@ router.get("/users/me", auth, getUserInfo);
 // поиск пользователя по id
 router.get("/users/:id", auth, celebrate({
   params: Joi.object().keys({
-    id: Joi.number().min(10)
+    id: Joi.string().min(10)
   }),
 }), getUsersById);
 
