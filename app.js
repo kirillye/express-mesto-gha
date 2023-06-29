@@ -1,18 +1,20 @@
 const { PORT = 3000 } = process.env;
 const express = require("express");
+require("dotenv").config();
 const bodyParser = require("body-parser");
-
+const errorHandler = require("./middlewares/error-handler");
+const cookieParser = require("cookie-parser");
+const { errors } = require("celebrate");
 const app = express();
+
+app.use(cookieParser());
 
 app.use(express.static("build"));
 // parse application/json
 app.use(bodyParser.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "648d52c4fb36c5d56a908db3",
-  };
-  next();
+app.get("/posts", (req, res) => {
+  console.log(req.cookies.jwt); // достаём токен
 });
 
 const routes = require("./routes");
@@ -30,12 +32,8 @@ mongoose
   });
 
 app.use(routes);
-
-app.use((req, res, next) => {
-  res.status(404).json({
-    message: "К сожалению страница не найдена =(",
-  });
-});
+app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
