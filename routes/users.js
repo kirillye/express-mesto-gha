@@ -29,7 +29,12 @@ router.post(
       email: Joi.string().required().email({ minDomainSegments: 2 }),
       password: Joi.string()
         .required()
-        .pattern(new RegExp("^[a-zA-Z0-9]{8,30}$")),
+        .pattern(new RegExp("^[a-zA-Z0-9]{8,}$")),
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(3).max(30),
+      avatar: Joi.string().pattern(
+        /(?:http|https):\/\/((?:[\w-]+)(?:\.[\w-]+)+)(?:[\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/
+      ),
     }),
   }),
   createUsers
@@ -43,7 +48,7 @@ router.post(
       email: Joi.string().required().email({ minDomainSegments: 2 }),
       password: Joi.string()
         .required()
-        .pattern(new RegExp("^[a-zA-Z0-9]{8,30}$")),
+        .pattern(new RegExp("^[a-zA-Z0-9]{8,}$")),
     }),
   }),
   login

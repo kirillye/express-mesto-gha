@@ -56,6 +56,9 @@ const createUsers = (req, res) => {
           User.create({
             email: req.body.email,
             password: hash,
+            name: req.body.name,
+            about: req.body.about,
+            avatar: req.body.avatar,
           })
         )
         .then((newUser) => {
