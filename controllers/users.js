@@ -62,7 +62,8 @@ const createUsers = (req, res) => {
           })
         )
         .then((newUser) => {
-          return res.status(201).send(newUser);
+          const { password, ...others } = newUser._doc;
+          return res.status(201).send(others);
         })
         .catch((err) => {
           res.status(500).send({ message: err.message });
