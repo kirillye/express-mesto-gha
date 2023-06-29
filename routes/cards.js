@@ -18,7 +18,7 @@ router.post(
   auth,
   celebrate({
     body: Joi.object().keys({
-      name: Joi.string().min(2).max(30),
+      name: Joi.string().required().min(2).max(30),
       link: Joi.string()
         .required()
         .pattern(
@@ -30,12 +30,24 @@ router.post(
 );
 
 // удаляет карточку по идентификатору
-router.delete("/:cardId", auth, deleteCard);
+router.delete("/:cardId", auth, celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.number().min(10)
+  }),
+}), deleteCard);
 
 // поставить лайк карточке
-router.put("/:cardId/likes", auth, likeCard);
+router.put("/:cardId/likes", auth, celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.number().min(10)
+  }),
+}), likeCard);
 
 // убрать лайк с карточки
-router.delete("/:cardId/likes", auth, dislikeCard);
+router.delete("/:cardId/likes", auth, celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.number().min(10)
+  }),
+}), dislikeCard);
 
 module.exports = router;
