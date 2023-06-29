@@ -48,7 +48,7 @@ const createUsers = (req, res) => {
   User.findOne({ email: newUserData.email })
     .then((user) => {
       if (user) {
-        throw new ForbiddenError("Такой пользователь уже есть");
+        return res.status(409).send({ message: "email уже зарегистрирован" });
       }
       return bcrypt
         .hash(req.body.password, 10)
@@ -86,6 +86,9 @@ const login = (req, res) => {
         .send({ message: "Авторизация прошла успешно" });
     })
     .catch((err) => {
+      if (err.message == "Неправильные почта или пароль") {
+        res.status(401).send({ message: err.message });
+      }
       res.status(500).send({ message: err.message });
     });
 };
