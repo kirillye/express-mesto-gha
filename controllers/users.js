@@ -19,7 +19,7 @@ const getUserInfo = (req, res) => {
   const userId = req.user._id;
   User.findById(userId)
     .then((user) => {
-      return res.status(200).send({ message: { user } });
+      return res.status(200).send({ user });
     })
     .catch((err) => {
       return res.status(500).send({ message: err.message });
@@ -37,7 +37,7 @@ const getUsersById = (req, res) => {
     })
     .catch((err) => {
       if (err.name == "CastError") {
-        throw new BadRequestError("Id пользователя не корректен");
+        return res.status(400).send({ message: "Id пользователя не корректен" });
       }
       return res.status(500).send({ message: err.message });
     });
