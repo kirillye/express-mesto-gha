@@ -14,5 +14,7 @@ node_modules
 .idea
 .vscode
 
-# save key
-.env 
+
+
+# save key / для проверки работоспособности
+# .env 

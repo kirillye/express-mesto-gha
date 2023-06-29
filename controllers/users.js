@@ -79,12 +79,17 @@ const login = (req, res) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = generateToken(user);
+
+      // отправка токена в ответе
+      // return res.send({token})
+      
+      // Токен через cookies
       return res
         .cookie("jwt", token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
         })
-        .send({ message: "Авторизация прошла успешно" });
+        .send({token});
     })
     .catch((err) => {
       if (err.message == "Неправильные почта или пароль") {
