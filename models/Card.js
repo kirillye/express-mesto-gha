@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const uniqueValidator = require("mongoose-unique-validator");
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -23,10 +24,12 @@ const cardSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: "User",
   },
   likes: {
     type: [mongoose.Schema.Types.ObjectId],
     default: [],
+    ref: "User",
   },
   createdAt: {
     type: Date,
@@ -34,4 +37,5 @@ const cardSchema = new mongoose.Schema({
   },
 });
 
+cardSchema.plugin(uniqueValidator);
 module.exports = mongoose.model("card", cardSchema);

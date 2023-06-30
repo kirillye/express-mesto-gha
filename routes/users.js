@@ -24,7 +24,7 @@ router.get(
   auth,
   celebrate({
     params: Joi.object().keys({
-      id: Joi.string().hex().required(),
+      id: Joi.string().required().hex(),
     }),
   }),
   getUsersById
