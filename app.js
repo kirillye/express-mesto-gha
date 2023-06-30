@@ -1,9 +1,8 @@
 const { PORT = 3000 } = process.env;
 const express = require("express");
 require("dotenv").config();
-const bodyParser = require("body-parser");
-const errorHandler = require("./middlewares/error-handler");
 const cookieParser = require("cookie-parser");
+const handleErrors = require("./middlewares/handleErrors");
 const { errors } = require("celebrate");
 const app = express();
 
@@ -11,7 +10,7 @@ app.use(cookieParser());
 
 app.use(express.static("build"));
 // parse application/json
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.get("/posts", (req, res) => {
   console.log(req.cookies.jwt); // достаём токен
@@ -33,7 +32,7 @@ mongoose
 
 app.use(routes);
 app.use(errors());
-app.use(errorHandler);
+app.use(handleErrors);
 
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);

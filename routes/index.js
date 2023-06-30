@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const userRoutes = require("./users");
 const cardRoutes = require("./cards");
+const { NotFound } = require("../util/errors");
 
 // главная страница
 router.get("/", function (req, res) {
@@ -10,7 +11,7 @@ router.use("", userRoutes);
 router.use("/cards", cardRoutes);
 
 router.all("*", (req, res) => {
-  res.status(404).send({ message: "Страница не найдена" });
+  throw new NotFound(`Ресурс по адресу ${req.path} не найден`);
 });
 
 module.exports = router;

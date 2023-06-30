@@ -19,11 +19,16 @@ router.get("/users", auth, getUsers);
 router.get("/users/me", auth, getUserInfo);
 
 // поиск пользователя по id
-router.get("/users/:id", auth, celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().min(10)
+router.get(
+  "/users/:id",
+  auth,
+  celebrate({
+    params: Joi.object().keys({
+      id: Joi.string().hex().required(),
+    }),
   }),
-}), getUsersById);
+  getUsersById
+);
 
 // создание пользователя
 router.post(
@@ -60,8 +65,8 @@ router.patch(
   auth,
   celebrate({
     body: Joi.object().keys({
-      about: Joi.string().min(3).max(30),
-      name: Joi.string().min(2).max(30),
+      about: Joi.string().required().min(3).max(30),
+      name: Joi.string().required().min(2).max(30),
     }),
   }),
   updateUserById

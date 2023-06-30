@@ -30,24 +30,39 @@ router.post(
 );
 
 // удаляет карточку по идентификатору
-router.delete("/:cardId", auth, celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().min(10)
+router.delete(
+  "/:cardId",
+  auth,
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().hex().required(),
+    }),
   }),
-}), deleteCard);
+  deleteCard
+);
 
 // поставить лайк карточке
-router.put("/:cardId/likes", auth, celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().min(10)
+router.put(
+  "/:cardId/likes",
+  auth,
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().hex().required(),
+    }),
   }),
-}), likeCard);
+  likeCard
+);
 
 // убрать лайк с карточки
-router.delete("/:cardId/likes", auth, celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().min(10)
+router.delete(
+  "/:cardId/likes",
+  auth,
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().hex().required(),
+    }),
   }),
-}), dislikeCard);
+  dislikeCard
+);
 
 module.exports = router;

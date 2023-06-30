@@ -1,5 +1,5 @@
 const Card = require("../models/Card");
-const BadRequestError = require("../errors/bad-reques-error");
+const { GeneralError, BadRequest, NotFound } = require("../util/errors");
 
 const getCards = (req, res) => {
   return Card.find({})
@@ -7,7 +7,7 @@ const getCards = (req, res) => {
       return res.status(200).send(cards);
     })
     .catch(() => {
-      return res.status(500).send({ message: "server error" });
+      return next(new GeneralError("Произошла ошибка"));
     });
 };
 
@@ -20,36 +20,40 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name == "ValidationError") {
-        return res.status(400).send({
-          message: `${Object.values(err.errors)
-            .map((err) => err.message)
-            .join()}`,
-        });
+        return next(
+          new BadRequest(
+            `${Object.values(err.errors)
+              .map((err) => err.message)
+              .join()}`
+          )
+        );
+      } else {
+        return next(new GeneralError("Произошла ошибка"));
       }
-      return res.status(500).send({ message: "server error" });
     });
 };
 
 const deleteCard = (req, res) => {
   const userId = req.user._id;
-  return Card.findByIdAndRemove(req.params.cardId).then((card) => {
-    if(!card) {
-      return res
-        .status(404)
-        .send({ message: "Карточка не найдена" });
-    }
-    if (!(userId == card.owner)) {
-      return res
-        .status(403)
-        .send({ message: "У вас нет прав не удаление карточки" });
-    }
-    return res.status(200).send({ data: card });
-  })
+  return Card.findByIdAndRemove(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        throw new NotFound("Карточка не найдена");
+      }
+      if (!(userId == card.owner)) {
+        return res
+          .status(403)
+          .send({ message: "У вас нет прав не удаление карточки" });
+      } else {
+        return res.status(200).send({ data: card });
+      }
+    })
     .catch((err) => {
       if (err.name == "CastError") {
-        return res.status(500).send({ message: 'id карточки не корректен' });
+        return next(new BadRequest("id карточки не корректен"));
+      } else {
+        return next(new GeneralError("Произошла ошибка"));
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -61,15 +65,16 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: "Карточка не найдена" });
+        throw new NotFound("Карточка не найдена");
       }
       return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name == "CastError") {
-        throw new BadRequestError("id карточки не корректен");
+        return next(new BadRequest("id карточки не корректен"));
+      } else {
+        return next(new GeneralError("Произошла ошибка"));
       }
-      return res.status(500).send({ message: "Произошла ошибка" });
     });
 };
 
@@ -81,15 +86,16 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: "Карточка не найдена" });
+        throw new NotFound("Карточка не найдена");
       }
       return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name == "CastError") {
-        throw new BadRequestError("id карточки не корректен");
+        return next(new BadRequest("id карточки не корректен"));
+      } else {
+        return next(new GeneralError("Произошла ошибка"));
       }
-      return res.status(500).send({ message: "Произошла ошибка" });
     });
 };
 

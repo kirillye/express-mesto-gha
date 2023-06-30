@@ -1,9 +1,7 @@
 const User = require("../models/User");
 const { generateToken } = require("../util/jwt");
 const bcrypt = require("bcryptjs");
-const NotFoundError = require("../errors/not-found-error");
-const ForbiddenError = require("../errors/forbidden");
-const BadRequestError = require("../errors/bad-reques-error");
+const { GeneralError, BadRequest, NotFound } = require("../util/errors");
 
 const getUsers = (req, res) => {
   return User.find({})
@@ -11,7 +9,7 @@ const getUsers = (req, res) => {
       return res.status(200).send(users);
     })
     .catch((err) => {
-      return res.status(500).send({ message: err.message });
+      return next(new GeneralError(err.message));
     });
 };
 
@@ -22,7 +20,7 @@ const getUserInfo = (req, res) => {
       return res.status(200).send({ user });
     })
     .catch((err) => {
-      return res.status(500).send({ message: err.message });
+      return next(new GeneralError(err.message));
     });
 };
 
@@ -31,15 +29,16 @@ const getUsersById = (req, res) => {
   return User.findById(id)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "Пользователь не найден" });
+        throw new NotFound("Пользователь не найден");
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name == "CastError") {
-        return res.status(400).send({ message: "Id пользователя не корректен" });
+        return next(new BadRequest("Id пользователя не корректен"));
+      } else {
+        return next(new GeneralError(err.message));
       }
-      return res.status(500).send({ message: err.message });
     });
 };
 
@@ -66,11 +65,11 @@ const createUsers = (req, res) => {
           return res.status(201).send(others);
         })
         .catch((err) => {
-          res.status(500).send({ message: err.message });
+          return next(new GeneralError(err.message));
         });
     })
     .catch((err) => {
-      res.status(500).send({ message: err.message });
+      return next(new GeneralError(err.message));
     });
 };
 
@@ -82,20 +81,21 @@ const login = (req, res) => {
 
       // отправка токена в ответе
       // return res.send({token})
-      
+
       // Токен через cookies
       return res
         .cookie("jwt", token, {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
         })
-        .send({token});
+        .send({ message: "Авторизация прошла успешна!" });
     })
     .catch((err) => {
       if (err.message == "Неправильные почта или пароль") {
         res.status(401).send({ message: err.message });
+      } else {
+        return next(new GeneralError(err.message));
       }
-      res.status(500).send({ message: err.message });
     });
 };
 
@@ -110,19 +110,21 @@ const updateUserById = (req, res) => {
   })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError("Пользователь не найден");
+        throw new NotFound("Пользователь не найден");
       }
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name == "ValidationError") {
-        return res.status(400).send({
-          message: `${Object.values(err.errors)
-            .map((err) => err.message)
-            .join()}`,
-        });
+        return next(
+          new BadRequest(
+            `${Object.values(err.errors)
+              .map((err) => err.message)
+              .join()}`
+          )
+        );
       }
-      return res.status(500).send({ message: err.message });
+      return next(new GeneralError(err.message));
     });
 };
 
@@ -141,19 +143,22 @@ const updateUserAvatarById = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError(`Пользователь не найден`);
+        throw new NotFound(`Пользователь не найден`);
       }
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name == "ValidationError") {
-        return res.status(400).send({
-          message: `${Object.values(err.errors)
-            .map((err) => err.message)
-            .join()}`,
-        });
+        return next(
+          new BadRequest(
+            `${Object.values(err.errors)
+              .map((err) => err.message)
+              .join()}`
+          )
+        );
+      } else {
+        return next(new GeneralError(err.message));
       }
-      return res.status(500).send({ message: err.message });
     });
 };
 
