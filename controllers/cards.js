@@ -2,7 +2,7 @@ const Card = require("../models/Card");
 const BadRequest = require("../errors/bad-request-error");
 const NotFound = require("../errors/not-found-error");
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   return Card.find({})
     .then((cards) => {
       return res.status(200).send(cards);
@@ -10,7 +10,7 @@ const getCards = (req, res) => {
     .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   let newCardsData = req.body;
   newCardsData.owner = req.user._id;
   return Card.create(newCardsData)
@@ -32,7 +32,7 @@ const createCard = (req, res) => {
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const userId = req.user._id;
   return Card.findByIdAndRemove({ _id: req.params.cardId }, { owner: userId })
     .then((card) => {
@@ -56,7 +56,7 @@ const deleteCard = (req, res) => {
     });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   return Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -77,7 +77,7 @@ const likeCard = (req, res) => {
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   return Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
