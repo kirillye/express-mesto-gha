@@ -1,14 +1,13 @@
 const Card = require("../models/Card");
-const { GeneralError, BadRequest, NotFound } = require("../util/errors");
+const BadRequest = require("../errors/bad-request-error");
+const NotFound = require("../errors/not-found-error");
 
 const getCards = (req, res) => {
   return Card.find({})
     .then((cards) => {
       return res.status(200).send(cards);
     })
-    .catch(() => {
-      return next(new GeneralError("Произошла ошибка"));
-    });
+    .catch(next);
 };
 
 const createCard = (req, res) => {
@@ -28,7 +27,7 @@ const createCard = (req, res) => {
           )
         );
       } else {
-        return next(new GeneralError("Произошла ошибка"));
+        next(err);
       }
     });
 };
@@ -52,7 +51,7 @@ const deleteCard = (req, res) => {
       if (err.name == "CastError") {
         return next(new BadRequest("id карточки не корректен"));
       } else {
-        return next(new GeneralError("Произошла ошибка"));
+        next(err);
       }
     });
 };
@@ -73,7 +72,7 @@ const likeCard = (req, res) => {
       if (err.name == "CastError") {
         return next(new BadRequest("id карточки не корректен"));
       } else {
-        return next(new GeneralError("Произошла ошибка"));
+        next(err);
       }
     });
 };
@@ -94,7 +93,7 @@ const dislikeCard = (req, res) => {
       if (err.name == "CastError") {
         return next(new BadRequest("id карточки не корректен"));
       } else {
-        return next(new GeneralError("Произошла ошибка"));
+        next(err);
       }
     });
 };

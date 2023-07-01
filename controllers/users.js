@@ -1,44 +1,45 @@
 const User = require("../models/User");
 const { generateToken } = require("../util/jwt");
 const bcrypt = require("bcryptjs");
-const { GeneralError, BadRequest, NotFound } = require("../util/errors");
+const BadRequest = require("../errors/bad-request-error");
+const NotFound = require("../errors/not-found-error");
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   return User.find({})
     .then((users) => {
       return res.status(200).send(users);
     })
-    .catch((err) => {
-      return next(new GeneralError(err.message));
-    });
+    .catch(next);
 };
 
-const getUserInfo = (req, res) => {
+const getUserInfo = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
     .then((user) => {
       return res.status(200).send({ user });
     })
-    .catch((err) => {
-      return next(new GeneralError(err.message));
-    });
+    .catch(next);
 };
 
-const getUsersById = (req, res) => {
+const getUsersById = (req, res, next) => {
   const { id } = req.params;
-  return User.findById(id)
+  User.findById(id)
     .then((user) => {
       if (!user) {
         throw new NotFound("Пользователь не найден");
       }
-      return res.status(200).send(user);
+      res.status(200).send(user);
     })
     .catch((err) => {
-      return next(new GeneralError(err.message));
+      if (err.name === "CastError") {
+        next(new BadRequest("Передан некорретный Id"));
+        return;
+      }
+      next(err);
     });
 };
 
-const createUsers = (req, res) => {
+const createUsers = (req, res, next) => {
   const newUserData = req.body;
   User.findOne({ email: newUserData.email })
     .then((user) => {
@@ -61,15 +62,16 @@ const createUsers = (req, res) => {
           return res.status(201).send(others);
         })
         .catch((err) => {
-          return next(new GeneralError(err.message));
+          if (err.name === "ValidationError") {
+            return next(new BadRequest("Некорректные данные"));
+          }
+          next(err);
         });
     })
-    .catch((err) => {
-      return next(new GeneralError(err.message));
-    });
+    .catch(next);
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -86,16 +88,10 @@ const login = (req, res) => {
         })
         .send({ message: "Авторизация прошла успешна!" });
     })
-    .catch((err) => {
-      if (err.message == "Неправильные почта или пароль") {
-        res.status(401).send({ message: err.message });
-      } else {
-        return next(new GeneralError(err.message));
-      }
-    });
+    .catch(next);
 };
 
-const updateUserById = (req, res) => {
+const updateUserById = (req, res, next) => {
   const filter = {
     _id: req.user._id,
   };
@@ -120,11 +116,11 @@ const updateUserById = (req, res) => {
           )
         );
       }
-      return next(new GeneralError(err.message));
+      next(err);
     });
 };
 
-const updateUserAvatarById = (req, res) => {
+const updateUserAvatarById = (req, res, next) => {
   const filter = {
     _id: req.user._id,
   };
@@ -153,7 +149,7 @@ const updateUserAvatarById = (req, res) => {
           )
         );
       } else {
-        return next(new GeneralError(err.message));
+        next(err);
       }
     });
 };

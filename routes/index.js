@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const userRoutes = require("./users");
 const cardRoutes = require("./cards");
-const { NotFound } = require("../util/errors");
+const NotFound = require("../errors/not-found-error");
 
 // главная страница
 router.get("/", function (req, res) {
