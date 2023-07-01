@@ -50,20 +50,22 @@ const createUsers = (req, res, next) => {
         name: req.body.name,
         about: req.body.about,
         avatar: req.body.avatar,
-      }).then((newUser) => {
-        const { password, ...others } = newUser._doc;
-        return res.status(201).send(others);
-      });
+      })
+        .then((newUser) => {
+          const { password, ...others } = newUser._doc;
+          return res.status(201).send(others);
+        })
+        .catch((err) => {
+          if (err.code === 11000) {
+            return next(new Conflict("Пользователь уже зарегистрирован"));
+          }
+          if (err.name === "ValidationError") {
+            return next(new BadRequest("Данные не корректны"));
+          }
+          next(err);
+        });
     })
-    .catch((err) => {
-      if (err.code === 11000) {
-        return next(new Conflict("Пользователь уже зарегистрирован"));
-      }
-      if (err.name === "ValidationError") {
-        return next(new BadRequest("Некорректные данные"));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 const login = (req, res, next) => {
