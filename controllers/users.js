@@ -60,7 +60,7 @@ const createUsers = (req, res, next) => {
             return next(new Conflict("Пользователь уже зарегистрирован"));
           }
           if (err.name === "ValidationError") {
-            return next(new BadRequest("Данные не корректны"));
+            return next(new Conflict("Данные не корректны"));
           }
           next(err);
         });
