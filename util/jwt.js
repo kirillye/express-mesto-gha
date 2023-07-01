@@ -10,17 +10,6 @@ const generateToken = (user) => {
   );
 };
 
-const verifyToken = (token) => {
-  return jwt.verify(token, JWT_SECRET, options, function (err, decoded) {
-    if (err) return false;
-
-    return User.findById(decoded.id).then((user) => {
-      return Boolean(user);
-    });
-  });
-};
-
 module.exports = {
   generateToken,
-  verifyToken,
 };

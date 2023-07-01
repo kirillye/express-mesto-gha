@@ -1,6 +1,7 @@
 const Card = require("../models/Card");
 const BadRequest = require("../errors/bad-request-error");
 const NotFound = require("../errors/not-found-error");
+const ForbiddenError = require("../errors/forbidden-error");
 
 const getCards = (req, res, next) => {
   return Card.find({})
@@ -34,26 +35,30 @@ const createCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const userId = req.user._id;
-  return Card.findByIdAndRemove({ _id: req.params.cardId }, { owner: userId })
+  const cardId = req.params.cardId;
+
+  Card.findOne({ _id: cardId })
+    .orFail(() => {
+      throw new NotFound("Карточка не найдена");
+    })
     .then((card) => {
-      if (!card) {
-        throw new NotFound("Карточка не найдена");
-      }
-      if (!(userId == card.owner)) {
-        return res
-          .status(403)
-          .send({ message: "У вас нет прав не удаление карточки" });
+      if (userId === card.owner._id.toString()) {
+        Card.findByIdAndRemove()
+          .then((deletedCard) => {
+            return res.status(200).send(deletedCard);
+          })
+          .catch((err) => {
+            if (err.name === "CastError") {
+              next(new BadRequest("id карточки не корректен"));
+            } else {
+              next(err);
+            }
+          });
       } else {
-        return res.status(200).send({ data: card });
+        next(new ForbiddenError("У вас нет прав на удаление этой карточки"));
       }
     })
-    .catch((err) => {
-      if (err.name == "CastError") {
-        return next(new BadRequest("id карточки не корректен"));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 const likeCard = (req, res, next) => {

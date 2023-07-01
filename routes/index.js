@@ -10,8 +10,8 @@ router.get("/", function (req, res) {
 router.use("", userRoutes);
 router.use("/cards", cardRoutes);
 
-router.all("*", (req, res) => {
-  throw new NotFound(`Ресурс по адресу ${req.path} не найден`);
+router.all("*", (req, res, next) => {
+  next(new NotFound(`Ресурс по адресу ${req.path} не найден`));
 });
 
 module.exports = router;

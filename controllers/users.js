@@ -3,6 +3,7 @@ const { generateToken } = require("../util/jwt");
 const bcrypt = require("bcryptjs");
 const BadRequest = require("../errors/bad-request-error");
 const NotFound = require("../errors/not-found-error");
+const Conflict = require("../errors/conflict-error");
 
 const getUsers = (req, res, next) => {
   return User.find({})
@@ -40,35 +41,29 @@ const getUsersById = (req, res, next) => {
 };
 
 const createUsers = (req, res, next) => {
-  const newUserData = req.body;
-  User.findOne({ email: newUserData.email })
-    .then((user) => {
-      if (user) {
-        return res.status(409).send({ message: "email уже зарегистрирован" });
-      }
-      return bcrypt
-        .hash(req.body.password, 10)
-        .then((hash) =>
-          User.create({
-            email: req.body.email,
-            password: hash,
-            name: req.body.name,
-            about: req.body.about,
-            avatar: req.body.avatar,
-          })
-        )
-        .then((newUser) => {
-          const { password, ...others } = newUser._doc;
-          return res.status(201).send(others);
-        })
-        .catch((err) => {
-          if (err.name === "ValidationError") {
-            return next(new BadRequest("Некорректные данные"));
-          }
-          next(err);
-        });
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => {
+      User.create({
+        email: req.body.email,
+        password: hash,
+        name: req.body.name,
+        about: req.body.about,
+        avatar: req.body.avatar,
+      }).then((newUser) => {
+        const { password, ...others } = newUser._doc;
+        return res.status(201).send(others);
+      });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 11000) {
+        return next(new Conflict("Пользователь уже зарегистрирован"));
+      }
+      if (err.name === "ValidationError") {
+        return next(new BadRequest("Некорректные данные"));
+      }
+      next(err);
+    });
 };
 
 const login = (req, res, next) => {

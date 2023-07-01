@@ -35,7 +35,11 @@ router.delete(
   auth,
   celebrate({
     params: Joi.object().keys({
-      cardId: Joi.string().hex().required(),
+      cardId: Joi.string()
+        .required()
+        .min(24)
+        .max(24)
+        .pattern(/[a-z][0-9]+/),
     }),
   }),
   deleteCard
@@ -47,7 +51,11 @@ router.put(
   auth,
   celebrate({
     params: Joi.object().keys({
-      cardId: Joi.string().hex().required(),
+      cardId: Joi.string()
+        .required()
+        .min(24)
+        .max(24)
+        .pattern(/[a-z][0-9]+/),
     }),
   }),
   likeCard
@@ -59,7 +67,11 @@ router.delete(
   auth,
   celebrate({
     params: Joi.object().keys({
-      cardId: Joi.string().hex().required(),
+      cardId: Joi.string()
+        .required()
+        .min(24)
+        .max(24)
+        .pattern(/[a-z][0-9]+/),
     }),
   }),
   dislikeCard
