@@ -47,18 +47,18 @@ const deleteCard = (req, res, next) => {
           .then((deletedCard) => {
             return res.status(200).send(deletedCard);
           })
-          .catch((err) => {
-            if (err.name === "CastError") {
-              next(new BadRequest("id карточки не корректен"));
-            } else {
-              next(err);
-            }
-          });
+          .catch(next);
       } else {
         next(new ForbiddenError("У вас нет прав на удаление этой карточки"));
       }
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(new BadRequest("id карточки не корректен"));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const likeCard = (req, res, next) => {

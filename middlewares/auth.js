@@ -11,7 +11,7 @@ module.exports = (req, res, next) => {
   let payload;
 
   if (!token) {
-    throw new AuthError("Необходима авторизация");
+    return next(new AuthError("Необходимо авторизоваться"));
   }
 
   try {
